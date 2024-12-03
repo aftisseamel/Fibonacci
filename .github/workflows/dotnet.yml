@@ -2,7 +2,6 @@
 # For more information see: https://docs.github.com/en/actions/automating-builds-and-tests/building-and-testing-net
 
 name: .NET
-
 on:
   push:
     branches: [ "main" ]
@@ -35,6 +34,7 @@ jobs:
             echo "new_version=${{ steps.tag_version.outputs.new_version }}" >> $GITHUB_OUTPUT
           else
             echo "new_version=pr-${{ github.event.number }}-${{ github.run_number }}" >> $GITHUB_OUTPUT
+          
   build:
     needs: [ tags ]
     runs-on: ubuntu-latest
