@@ -60,6 +60,7 @@ jobs:
         with:
           name: Publish win-x64 Fibonacci
           path: ./win-x64/Fibonacci
+          
   build_docker_webapp:
     needs: [tags]
     uses: ./.github/workflows/docker.yml
