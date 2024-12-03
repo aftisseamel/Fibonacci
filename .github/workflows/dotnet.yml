@@ -45,7 +45,7 @@ jobs:
         with:
           dotnet-version: 8.0.x
       - name: Run Unit test
-        working-directory: ./tests/Leonardo.Test
+        working-directory: ./tests/Leonardo.Tests
         run: dotnet test /p:CollectCoverage=true /p:CoverletOutputFormat=opencover /p:CoverletOutput=./coverage/opencover.xml
       - name: Publish Fibonacci to Nugget
         working-directory: ./src/Leonardo
