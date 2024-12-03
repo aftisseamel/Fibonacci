@@ -9,8 +9,13 @@ on:
   pull_request:
     branches: [ "main" ]
 
-jobs:
+permissions:
+  id-token: write
+  contents: write
+  packages: write
   
+jobs:
+
   tags:
     runs-on: ubuntu-latest
     outputs:
@@ -44,16 +49,18 @@ jobs:
         working-directory: ./tests/Leonardo.Tests
         run: dotnet test /p:CollectCoverage=true /p:CoverletOutputFormat=opencover /p:CoverletOutput=./coverage/opencover.xml
       - run: dotnet publish ./src/Leonardo.W/Leonardo.Web.csproj --self-contained true --output ./win-x64/fibonacci -c Release -r win-x64 /p:PublishSingleFile=true
+      
+      - name: Publish Fibonacci to Nugget
+                - working-directory: ./src/Leonardo
+        if: github.ref == 'refs/heads/main'
+        run: |
+          - dotnet pack -c Release -p:PackageVersion=${{ needs.tags.outputs.new_version }}
+          - dotnet nuget push ./bin/Release/Aftisse.Amel.Fibonacci.${{ needs.tags.outputs.new_version }}.nupkg --api-key ${{ secrets.NUGET_API_KEY }} --source https://api.nuget.org/v3/index.json
+
       - name: Upload WebApp Build Artifact
         uses: actions/upload-artifact@v3
         with:
           name: Publish win-x64 Fibonacci
           path: ./win-x64/fibonacci
 
-      - name: Publish Fibonacci to Nugget
-                - working-directory: ./src/Leonardo
-        if: github.ref == 'refs/heads/main'
-        run: |
-                - dotnet pack -c Release -p:PackageVersion=${{ needs.tags.outputs.new_version }}
-                - dotnet nuget push ./bin/Release/Leonardo.${{ needs.tags.outputs.new_version }}.nupkg --api-key ${{ secrets.NUGET_API_KEY }} --source https://api.nuget.org/v3/index.json
-        
+      
