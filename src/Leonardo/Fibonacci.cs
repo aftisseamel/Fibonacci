@@ -4,9 +4,11 @@ namespace Leonardo;
 
 public record FibonacciResult(int Input, long Result);
 
-public static class Fibonacci
+public class Fibonacci(FibonacciDataContext context)
 {
-    private static int Run(int i)
+    private readonly FibonacciDataContext _context = context;
+
+    private int Run(int i)
     {
         if (i <= 2)
         {
@@ -16,24 +18,18 @@ public static class Fibonacci
         return Run(i - 1) + Run(i - 2);
     }
 
-    public static async Task<List<FibonacciResult>> RunAsync(string[] strings)
+    public async Task<List<FibonacciResult>> RunAsync(string[] strings)
     {
         var tasks = new List<Task<FibonacciResult>>();
-        var context = new FibonacciDataContext();
 
         foreach (var input in strings)
         {
             var i = int.Parse(input);
-            var result = await context.TFibonaccis.Where(f => f.FibInput == i).FirstOrDefaultAsync();
+            var result = await _context.TFibonaccis.Where(f => f.FibInput == i).FirstOrDefaultAsync();
 
-            if (result != null)
-            {
-                tasks.Add(Task.FromResult(new FibonacciResult(i, result.FibOutput)));
-            }
-            else
-            {
-                tasks.Add(Task.Run(() => new FibonacciResult(i, Run(i))));
-            }
+            tasks.Add(result != null
+                ? Task.FromResult(new FibonacciResult(i, result.FibOutput))
+                : Task.Run(() => new FibonacciResult(i, Run(i))));
         }
 
         var results = new List<FibonacciResult>();
@@ -41,14 +37,14 @@ public static class Fibonacci
         {
             results.Add(await task);
 
-            context.TFibonaccis.Add(new TFibonacci
+            _context.TFibonaccis.Add(new TFibonacci
             {
                 FibInput = results.Last().Input,
                 FibOutput = results.Last().Result
             });
         }
 
-        await context.SaveChangesAsync();
+        await _context.SaveChangesAsync();
         return results;
     }
 }
