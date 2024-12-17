@@ -11,9 +11,9 @@ var app = builder.Build();
 
 app.MapGet("/", () => "Hello World 2!");
 
-app.MapGet("/fibonacci", async () =>
+app.MapGet("/fibonacci", async (Fibonacci fibonacci) =>
 {
-    var result = await Fibonacci.RunAsync(["42"]);
+    var result = await fibonacci.RunAsync(["42","10"]);
     return Results.Json(result, FibonacciContext.Default.ListFibonacciResult);
 });
 
